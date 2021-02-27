@@ -74,7 +74,17 @@ public class CategoriesActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
-                    list.add(dataSnapshot1.getValue(CategoryModel.class));
+
+                    List<String> sets = new ArrayList<>();
+
+                    for (DataSnapshot dataSnapshot2 : dataSnapshot1.child("sets").getChildren()) {
+                        sets.add(dataSnapshot2.getKey());
+                    }
+
+                    list.add(new CategoryModel(dataSnapshot1.child("name").getValue().toString()
+                            , sets
+                            , dataSnapshot1.child("url").getValue().toString()
+                            , dataSnapshot1.getKey()));
                 }
                 adapter.notifyDataSetChanged();
                 loadingDialog.dismiss();

@@ -11,13 +11,15 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 
+import java.util.List;
+
 public class GridAdapter extends BaseAdapter {
 
-    private int sets=0;
+    private List<String> sets;
     private String category;
     private InterstitialAd interstitialAd;
 
-    public GridAdapter(int sets, String category, InterstitialAd interstitialAd) {
+    public GridAdapter(List<String> sets, String category, InterstitialAd interstitialAd) {
         this.sets = sets;
         this.category=category;
         this.interstitialAd=interstitialAd;
@@ -26,7 +28,7 @@ public class GridAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return sets;
+        return sets.size();
     }
 
     @Override
@@ -62,7 +64,7 @@ public class GridAdapter extends BaseAdapter {
                         interstitialAd.loadAd(new AdRequest.Builder().build());
                         Intent questionIntent=new Intent(viewGroup.getContext(),QuestionsActivity.class);
                         questionIntent.putExtra("category",category);
-                        questionIntent.putExtra("setNo",i+1);
+                        questionIntent.putExtra("setId",sets.get(i));
                         viewGroup.getContext().startActivity(questionIntent);
 
                     }
@@ -74,7 +76,7 @@ public class GridAdapter extends BaseAdapter {
                 }
                 Intent questionIntent=new Intent(viewGroup.getContext(),QuestionsActivity.class);
                 questionIntent.putExtra("category",category);
-                questionIntent.putExtra("setNo",i+1);
+                questionIntent.putExtra("setId",sets.get(i));
                 viewGroup.getContext().startActivity(questionIntent);
 
             }

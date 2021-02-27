@@ -29,7 +29,7 @@ public class CategoriesActivity extends AppCompatActivity {
     // Write a message to the database
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference();
-    private List<CategoryModel> list;
+    public static List<CategoryModel> list;
 
 
     private RecyclerView recyclerView;

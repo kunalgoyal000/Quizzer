@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.animation.Animator;
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -57,8 +56,7 @@ public class QuestionsActivity extends AppCompatActivity {
     private List<QuestionModel> list;
     private int position = 0;
     private int score = 0;
-    private String category;
-    private int setNo;
+    private String setId;
     private InterstitialAd mInterstitialAd;
 
     private int count = 0;
@@ -126,16 +124,24 @@ public class QuestionsActivity extends AppCompatActivity {
             }
         });
 
-        category = getIntent().getStringExtra("category");
-        setNo = getIntent().getIntExtra("setNo", 1);
+        setId = getIntent().getStringExtra("setId");
 
         list = new ArrayList<>();
         loadingDialog.show();
-        myRef.child("SETS").child(category).child("questions").orderByChild("setNo").equalTo(setNo).addListenerForSingleValueEvent(new ValueEventListener() {
+        myRef.child("SETS").child(setId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    list.add(snapshot.getValue(QuestionModel.class));
+                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                    String id = dataSnapshot1.getKey();
+                    String question = dataSnapshot1.child("question").getValue().toString();
+                    String a = dataSnapshot1.child("optionA").getValue().toString();
+                    String b = dataSnapshot1.child("optionB").getValue().toString();
+                    String c = dataSnapshot1.child("optionC").getValue().toString();
+                    String d = dataSnapshot1.child("optionD").getValue().toString();
+                    String answer = dataSnapshot1.child("correctANS").getValue().toString();
+
+                    list.add(new QuestionModel(id, question, a, b, c, d, answer, setId));
+
                 }
                 if (list.size() > 0) {
                     for (int i = 0; i < 4; i++) {
@@ -150,10 +156,10 @@ public class QuestionsActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View view) {
                                 String body = "Q: " + list.get(position).getQuestion() + "\n" + "\n" +
-                                        "  1. " + list.get(position).getOptionA() + "\n" +
-                                        "  2. " + list.get(position).getOptionB() + "\n" +
-                                        "  3. " + list.get(position).getOptionC() + "\n" +
-                                        "  4. " + list.get(position).getOptionD();
+                                        "  1. " + list.get(position).getA() + "\n" +
+                                        "  2. " + list.get(position).getB() + "\n" +
+                                        "  3. " + list.get(position).getC() + "\n" +
+                                        "  4. " + list.get(position).getD();
                                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                                 shareIntent.setType("text/plain");
                                 //    shareIntent.putExtra(Intent.EXTRA_SUBJECT,"Quizzer Challenge");
@@ -223,6 +229,11 @@ public class QuestionsActivity extends AppCompatActivity {
     }
 
     private void playAnim(final View view, final int value, final String data) {
+
+          for (int i = 0; i < 4; i++) {
+              optionsContainer.getChildAt(i).setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#989898")));
+          }
+
         view.animate().alpha(value).scaleX(value).scaleY(value).setDuration(500).setStartDelay(100)
                 .setInterpolator(new DecelerateInterpolator()).setListener(new Animator.AnimatorListener() {
             @Override
@@ -230,15 +241,15 @@ public class QuestionsActivity extends AppCompatActivity {
                 String option = "";
                 if (value == 0 && count < 4) {
                     if (count == 0) {
-                        option = list.get(position).getOptionA();
+                        option = list.get(position).getA();
                     } else if (count == 1) {
-                        option = list.get(position).getOptionB();
+                        option = list.get(position).getB();
 
                     } else if (count == 2) {
-                        option = list.get(position).getOptionC();
+                        option = list.get(position).getC();
 
                     } else if (count == 3) {
-                        option = list.get(position).getOptionD();
+                        option = list.get(position).getD();
 
                     }
                     playAnim(optionsContainer.getChildAt(count), 0, option);
@@ -264,6 +275,8 @@ public class QuestionsActivity extends AppCompatActivity {
                     }
                     view.setTag(data);
                     playAnim(view, 1, data);
+                }else{
+                    enableOption(true);
                 }
             }
 
@@ -284,7 +297,7 @@ public class QuestionsActivity extends AppCompatActivity {
         enableOption(false);
         nextBtn.setEnabled(true);
         nextBtn.setAlpha(1);
-        if (selectedOption.getText().toString().equals(list.get(position).getCorrectANS())) {
+        if (selectedOption.getText().toString().equals(list.get(position).getAnswer())) {
             //correct
             score++;
             selectedOption.setBackground(getResources().getDrawable(R.drawable.correct_option));
@@ -296,7 +309,7 @@ public class QuestionsActivity extends AppCompatActivity {
             selectedOption.setBackground(getResources().getDrawable(R.drawable.correct_option));
             selectedOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));
             selectedOption.setTextColor(getResources().getColor(R.color.colorAccent));
-            Button correctOption = (Button) optionsContainer.findViewWithTag(list.get(position).getCorrectANS());
+            Button correctOption = (Button) optionsContainer.findViewWithTag(list.get(position).getAnswer());
             correctOption.setBackground(getResources().getDrawable(R.drawable.correct_option));
             correctOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50")));
             correctOption.setTextColor(getResources().getColor(R.color.colorAccent));
@@ -339,8 +352,8 @@ public class QuestionsActivity extends AppCompatActivity {
         int i = 0;
         for (QuestionModel model : bookmarksList) {
             if (model.getQuestion().equals(bookmarksList.get(position).getQuestion())
-                    && model.getCorrectANS().equals(bookmarksList.get(position).getCorrectANS())
-                    && model.getSetNo() == bookmarksList.get(position).getSetNo()) {
+                    && model.getA().equals(bookmarksList.get(position).getAnswer())
+                    && model.getSetId().equals(bookmarksList.get(position).getSetId())) {
                 matched = true;
                 matchedQuestionPosition = i;
             }

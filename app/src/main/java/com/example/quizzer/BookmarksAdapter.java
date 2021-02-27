@@ -29,7 +29,7 @@ public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull BookmarksAdapter.Viewholder holder, int position) {
-        holder.setData(list.get(position).getQuestion(),list.get(position).getCorrectANS(),position);
+        holder.setData(list.get(position).getQuestion(),list.get(position).getAnswer(),position);
     }
 
     @Override

@@ -12,10 +12,13 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 
+import java.util.List;
+
 public class SetsActivity extends AppCompatActivity {
 
     private GridView gridView;
     private InterstitialAd mInterstitialAd;
+    private List<String> sets;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,7 +32,8 @@ public class SetsActivity extends AppCompatActivity {
         loadAds();
         gridView=findViewById(R.id.gridview);
 
-        GridAdapter adapter=new GridAdapter(getIntent().getIntExtra("sets",0),getIntent().getStringExtra("title"),mInterstitialAd);
+        sets=CategoriesActivity.list.get(getIntent().getIntExtra("position", 0)).getSets();
+        GridAdapter adapter=new GridAdapter(sets,getIntent().getStringExtra("title"),mInterstitialAd);
         gridView.setAdapter(adapter);
     }
 

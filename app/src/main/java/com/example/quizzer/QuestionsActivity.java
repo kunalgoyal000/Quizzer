@@ -352,7 +352,7 @@ public class QuestionsActivity extends AppCompatActivity {
         int i = 0;
         for (QuestionModel model : bookmarksList) {
             if (model.getQuestion().equals(bookmarksList.get(position).getQuestion())
-                    && model.getA().equals(bookmarksList.get(position).getAnswer())
+                    && model.getAnswer().equals(bookmarksList.get(position).getAnswer())
                     && model.getSetId().equals(bookmarksList.get(position).getSetId())) {
                 matched = true;
                 matchedQuestionPosition = i;
